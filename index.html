@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DapoerBa - Resep Masakan Khas Bandung</title>
+<meta name="description" content="100+ resep masakan khas Bandung dan rumahan. Anti gagal, lengkap dengan timer dan mode memasak.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg: #FEFCFB;
+  --card: #FFFFFF;
+  --text: #2D2D2D;
+  --text-muted: #6C757D;
+  --accent-red: #E63946;
+  --accent-green: #2A9D8F;
+  --accent-yellow: #F4A261;
+  --shadow: 0 4px 20px rgba(0,0,0,0.05);
+  --radius: 16px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  transition: background .3s;
+}
+body.dark{
+  --bg: #121212;
+  --card: #1E1E1E;
+  --text: #EAEAEA;
+  --text-muted: #A0A0A0;
+  --shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+h1,h2,h3{font-family: 'Poppins', sans-serif; font-weight:700}
+img{max-width:100%; border-radius: var(--radius); display:block}
+
+.container{max-width:1200px;margin:0 auto;padding:0 20px}
+
+/* NAVBAR */
+nav{
+  background: rgba(254,252,251,0.8);
+  backdrop-filter: blur(10px);
+  position: sticky; top:0; z-index:100;
+  transition: all .3s;
+}
+body.dark nav{background: rgba(18,18,18,0.8)}
+.nav-wrap{display:flex;justify-content:space-between;align-items:center;padding:16px 0}
+.logo{font-size:24px;font-weight:700;color:var(--accent-red)}
+.nav-actions{display:flex;gap:12px;align-items:center}
+.search-bar input{
+  border:1px solid #ddd; padding:10px 16px; border-radius:12px; width:250px;
+  background: var(--card); color: var(--text); transition: all .3s;
+}
+.search-bar input:focus{outline:none; border-color: var(--accent-green); box-shadow:0 0 0 3px rgba(42,157,143,0.1)}
+.btn-icon{background:none;border:none;font-size:20px;cursor:pointer;padding:8px;border-radius:10px;transition:all .2s}
+.btn-icon:hover{background:#eee}
+body.dark .btn-icon:hover{background:#333}
+
+/* HERO */
+.hero{padding:60px 0; text-align:center}
+.hero h1{font-size: clamp(32px, 5vw, 48px); margin-bottom:16px}
+.hero p{color:var(--text-muted); margin-bottom:24px}
+.btn{
+  background: var(--accent-red); color:#fff; padding:12px 24px; border:none; border-radius:12px;
+  font-weight:600; cursor:pointer; transition: all .3s;
+}
+.btn:hover{transform: translateY(-2px); box-shadow: var(--shadow)}
+
+/* KATEGORI */
+.section{padding:40px 0}
+.section h2{margin-bottom:24px; font-size:28px}
+.chips{display:flex;gap:12px;overflow-x:auto;padding-bottom:10px}
+.chip{
+  background:var(--card); padding:10px 18px; border-radius:50px; cursor:pointer; white-space:nowrap;
+  box-shadow:var(--shadow); transition:all .3s;
+}
+.chip.active, .chip:hover{background:var(--accent-red); color:#fff}
+
+/* GRID RESEP */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}
+.card{
+  background:var(--card); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow);
+  transition: all .3s ease-out; opacity:0; transform: translateY(20px);
+  animation: fadeInUp .5s forwards;
+}
+.card:hover{transform: translateY(-4px); box-shadow:0 8px 30px rgba(0,0,0,0.1)}
+.card img{height:200px; object-fit:cover; transition: transform .4s}
+.card:hover img{transform: scale(1.05)}
+.card-body{padding:16px}
+.card-title{font-size:18px;margin-bottom:8px}
+.card-meta{color:var(--text-muted);font-size:14px;display:flex;gap:12px}
+.fav-btn{
+  float:right; background:none; border:none; font-size:20px; cursor:pointer; 
+  transition: transform .2s;
+}
+.fav-btn.active{color:var(--accent-red); transform: scale(1.2)}
+
+/* MODAL DETAIL */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;place-items:center;z-index:200;padding:20px}
+.modal.open{display:grid}
+.modal-content{
+  background:var(--card); width:100%; max-width:800px; max-height:90vh; overflow-y:auto;
+  border-radius:var(--radius); padding:24px; position:relative;
+}
+.close-btn{position:absolute;top:16px;right:16px;font-size:24px;background:none;border:none;cursor:pointer}
+.ingredients li{list-style:none;padding:8px 0;display:flex;align-items:center;gap:10px}
+.ingredients input{accent-color: var(--accent-green)}
+.step{display:flex;gap:16px;margin-bottom:16px}
+
+/* MODE MASAK */
+.cook-mode{position:fixed;inset:0;background:#000;color:#fff;display:none;z-index:300;padding:40px}
+.cook-mode.open{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.cook-step{font-size:clamp(24px,4vw,40px);margin-bottom:24px}
+.cook-nav button{font-size:18px;padding:14px 28px;margin:0 8px}
+
+/* TOAST */
+.toast{
+  position:fixed;top:20px;right:20px;background:var(--accent-green);color:#fff;
+  padding:12px 20px;border-radius:12px;transform:translateX(200%);transition:transform .4s
+}
+.toast.show{transform:translateX(0)}
+
+@keyframes fadeInUp{to{opacity:1;transform:translateY(0)}}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .search-bar input{width:150px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container nav-wrap">
+    <div class="logo">🍳 DapoerBa</div>
+    <div class="search-bar"><input type="text" id="search" placeholder="Cari resep... Seblak, Batagor"></div>
+    <div class="nav-actions">
+      <button class="btn-icon" id="darkToggle">🌙</button>
+      <button class="btn-icon" id="favView">❤️</button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <h1>Masak Enak ala Bandung, Anti Gagal</h1>
+    <p>100+ resep dari Seblak sampai Surabi, lengkap dengan takaran dan timer</p>
+    <button class="btn" onclick="scrollToResep()">Lihat Resep Populer</button>
+  </div>
+</header>
+
+<main class="container">
+  <section class="section">
+    <h2>Kategori</h2>
+    <div class="chips" id="kategori"></div>
+  </section>
+
+  <section class="section" id="resepSection">
+    <h2 id="sectionTitle">Resep Populer</h2>
+    <div class="grid" id="resepGrid"></div>
+  </section>
+</main>
+
+<!-- MODAL DETAIL -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <button class="close-btn" onclick="closeModal()">×</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- MODE MASAK -->
+<div class="cook-mode" id="cookMode">
+  <h2 id="cookTitle"></h2>
+  <div class="cook-step" id="cookStep"></div>
+  <div class="cook-nav">
+    <button class="btn" onclick="prevStep()">Sebelumnya</button>
+    <button class="btn" onclick="nextStep()">Selanjutnya</button>
+    <button class="btn" style="background:var(--text-muted)" onclick="exitCookMode()">Keluar</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">Disimpan ke Favorit!</div>
+
+<footer style="text-align:center;padding:40px 0;color:var(--text-muted)">
+  © 2026 DapoerBa. Dibuat dengan ❤️ di Bandung
+</footer>
+
+<script>
+// DATA RESEP
+const resepData = [
+  {
+    id:1, nama:"Seblak Kuah Pedas", kategori:"Makanan Khas Bandung", waktu:"20 Menit", 
+    kesulitan:"Mudah", porsi:2,
+    img:"https://images.unsplash.com/photo-1569562211093-4ed0d0758f12?q=80&w=800",
+    bahan:["Kerupuk mentah 100gr","Sosis 2 buah","Telur 1 butir","Bawang putih 3 siung","Kencur 2 ruas","Cabai 10 buah","Air 400ml"],
+    langkah:["Rendam kerupuk 10 menit","Haluskan bumbu: bawang, kencur, cabai","Tumis bumbu sampai harum","Masukkan air dan didihkan","Masukkan kerupuk, sosis, telur. Masak 5 menit"]
+  },
+  {
+    id:2, nama:"Batagor Bandung", kategori:"Makanan Khas Bandung", waktu:"30 Menit", 
+    kesulitan:"Sedang", porsi:4,
+    img:"https://images.unsplash.com/photo-1625943551694-4837b6eef0fa?q=80&w=800",
+    bahan:["Daging ikan tenggiri 250gr","Tahu 5 buah","Kulit pangsit 10 lembar","Bawang putih 2 siung","Saus kacang","Kecap manis"],
+    langkah:["Haluskan ikan dan bawang","Campur dengan tepung","Isi tahu dan kulit pangsit","Kukus 15 menit","Sajikan dengan saus kacang"]
+  },
+  {
+    id:3, nama:"Surabi Bandung", kategori:"Makanan Khas Bandung", waktu:"25 Menit", 
+    kesulitan:"Mudah", porsi:3,
+    img:"https://images.unsplash.com/photo-1617093727343-374698b1ec89?q=80&w=800",
+    bahan:["Tepung beras 200gr","Santan 400ml","Gula merah","Kelapa parut","Daun pandan"],
+    langkah:["Campur tepung dan santan","Masak di atas cetakan surabi","Tabur gula merah dan kelapa","Tutup sampai matang"]
+  },
+  {
+    id:4, nama:"Cireng Crispy", kategori:"Cemilan", waktu:"15 Menit", 
+    kesulitan:"Mudah", porsi:2,
+    img:"https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=800",
+    bahan:["Tepung tapioka 200gr","Air panas 150ml","Bawang putih 3 siung","Daun bawang","Garam"],
+    langkah:["Campur semua bahan","Bentuk bulat pipih","Goreng di minyak panas sampai keemasan"]
+  }
+];
+
+const kategoriData = ["Semua","Makanan Khas Bandung","Cemilan","Resep Cepat"];
+let favorites = JSON.parse(localStorage.getItem('dapoerba_fav')) || [];
+let currentResep = null;
+let currentStep = 0;
+
+// RENDER KATEGORI
+function renderKategori(){
+  const wrap = document.getElementById('kategori');
+  wrap.innerHTML = kategoriData.map(k => 
+    `<div class="chip" onclick="filterKategori('${k}')">${k}</div>`
+  ).join('');
+  document.querySelector('.chip').classList.add('active');
+}
+
+// RENDER RESEP
+function renderResep(data = resepData){
+  const grid = document.getElementById('resepGrid');
+  grid.innerHTML = '';
+  data.forEach((r,i) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.animationDelay = `${i*0.1}s`;
+    card.innerHTML = `
+      <img src="${r.img}" alt="${r.nama}">
+      <div class="card-body">
+        <button class="fav-btn ${favorites.includes(r.id)?'active':''}" onclick="toggleFav(${r.id},event)">❤️</button>
+        <h3 class="card-title">${r.nama}</h3>
+        <div class="card-meta">
+          <span>⏱️ ${r.waktu}</span>
+          <span>👩‍🍳 ${r.kesulitan}</span>
+        </div>
+        <button class="btn" style="width:100%;margin-top:12px" onclick="openModal(${r.id})">Lihat Resep</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// FILTER & SEARCH
+function filterKategori(kat){
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('sectionTitle').innerText = kat === 'Semua' ? 'Resep Populer' : kat;
+  const filtered = kat === 'Semua' ? resepData : resepData.filter(r=>r.kategori===kat);
+  renderResep(filtered);
+}
+
+document.getElementById('search').addEventListener('input', e=>{
+  const q = e.target.value.toLowerCase();
+  const filtered = resepData.filter(r=>r.nama.toLowerCase().includes(q));
+  renderResep(filtered);
+});
+
+// MODAL
+function openModal(id){
+  currentResep = resepData.find(r=>r.id===id);
+  const body = document.getElementById('modalBody');
+  body.innerHTML = `
+    <img src="${currentResep.img}" alt="${currentResep.nama}">
+    <h2>${currentResep.nama}</h2>
+    <p style="color:var(--text-muted)">${currentResep.waktu} • ${currentResep.porsi} Porsi</p>
+    <button class="btn" onclick="startCookMode()">👨‍🍳 Mulai Masak</button>
+    <h3 style="margin-top:24px">Bahan-bahan</h3>
+    <ul class="ingredients">
+      ${currentResep.bahan.map(b=>`<li><input type="checkbox"> ${b}</li>`).join('')}
+    </ul>
+    <h3 style="margin-top:24px">Langkah Memasak</h3>
+    ${currentResep.langkah.map((l,i)=>`<div class="step"><b>${i+1}.</b> <span>${l}</span></div>`).join('')}
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+
+// MODE MASAK
+function startCookMode(){
+  closeModal();
+  currentStep = 0;
+  document.getElementById('cookTitle').innerText = currentResep.nama;
+  updateCookStep();
+  document.getElementById('cookMode').classList.add('open');
+}
+function updateCookStep(){
+  document.getElementById('cookStep').innerText = `Langkah ${currentStep+1}: ${currentResep.langkah[currentStep]}`;
+}
+function nextStep(){if(currentStep<currentResep.langkah.length-1){currentStep++;updateCookStep()}}
+function prevStep(){if(currentStep>0){currentStep--;updateCookStep()}}
+function exitCookMode(){document.getElementById('cookMode').classList.remove('open')}
+
+// FAVORIT & DARK MODE
+function toggleFav(id,e){
+  e.stopPropagation();
+  if(favorites.includes(id)){favorites = favorites.filter(f=>f!==id)}else{favorites.push(id)}
+  localStorage.setItem('dapoerba_fav',JSON.stringify(favorites));
+  showToast(favorites.includes(id)?'Disimpan ke Favorit!':'Dihapus dari Favorit');
+  renderResep();
+}
+function showToast(msg){
+  const t = document.getElementById('toast'); t.innerText=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000)
+}
+document.getElementById('darkToggle').onclick = () => document.body.classList.toggle('dark');
+document.getElementById('favView').onclick = () => {
+  document.getElementById('sectionTitle').innerText = 'Resep Favorit';
+  renderResep(resepData.filter(r=>favorites.includes(r.id)));
+}
+function scrollToResep(){document.getElementById('resepSection').scrollIntoView({behavior:'smooth'})}
+
+// INIT
+renderKategori();
+renderResep();
+</script>
+</body>
+                                                  </html>
